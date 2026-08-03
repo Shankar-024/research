@@ -1,31 +1,46 @@
 # ==============================================================================
-# 1. INSTALL DEPENDENCIES
+# 1. IMPORTS & CONFIGURATION
 # ==============================================================================
+import os
+import re
 import sys
-import subprocess
+import time
 import warnings
+import gradio as gr
+import fitz  # PyMuPDF
+import arxiv
+import pandas as pd
+from typing import Dict, List, Any
+from duckduckgo_search import DDGS
+import serpapi
 
-# Suppress all DeprecationWarnings (like datetime.utcnow from jupyter_client)
+from langchain_groq import ChatGroq
+from langchain_community.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+# Suppress warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-# Optionally suppress UserWarnings (like FP16 CPU warnings from Whisper)
 warnings.filterwarnings("ignore", category=UserWarning)
-print("Installing required libraries...")
-packages = [
-    "groq>=0.4.0",
-    "langchain>=0.1.0",
-    "langchain-community>=0.0.20",
-    "langchain-groq>=0.1.0",
-    "sentence-transformers>=2.2.2",
-    "faiss-cpu>=1.7.4",
-    "pymupdf>=1.23.0",
-    "gradio>=4.15.0",
-    "arxiv>=2.1.0",
-    "duckduckgo-search>=4.2.0",
-    "pandas>=2.0.0"
-]
-subprocess.check_call([sys.executable, "-m", "pip", "install", "-q"] + packages)
-print("✅ Libraries installed successfully!\n")
-!pip install duckduckgo-search serpapi
+
+# Try loading API keys directly from environment or Colab secrets
+try:
+    from google.colab import userdata
+    try:
+        DEFAULT_GROQ_KEY = userdata.get('GROQ_API_KEY')
+    except Exception:
+        DEFAULT_GROQ_KEY = ""
+
+    try:
+        DEFAULT_SERPAPI_KEY = userdata.get('SERPAPI_API_KEY')
+    except Exception:
+        DEFAULT_SERPAPI_KEY = ""
+except ImportError:
+    DEFAULT_GROQ_KEY = os.getenv("GROQ_API_KEY", "")
+    DEFAULT_SERPAPI_KEY = os.getenv("SERPAPI_API_KEY", os.getenv("SERPAPI_KEY", ""))
+
+print(f"Keys Configured -> Groq Key Loaded: {bool(DEFAULT_GROQ_KEY)} | SerpApi Key Loaded: {bool(DEFAULT_SERPAPI_KEY)}")
 # ==============================================================================
 # 2. IMPORTS & CONFIGURATION
 # ==============================================================================
