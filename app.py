@@ -19,6 +19,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from google.colab import userdata
 
 # Suppress warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
